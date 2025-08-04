@@ -1,0 +1,420 @@
+<!-- Seção de Alunos -->
+<section class="content-section" id="students">
+    <div class="section-header">
+        <h1 class="animate-slide-in">Alunos</h1>
+        <p class="section-description animate-slide-in">Gerenciamento de clientes</p>
+    </div>
+    
+    <!-- Barra de Ações -->
+    <div class="action-bar animate-fade-in">
+        <!-- Barra de Pesquisa -->
+        <div class="search-bar">
+            <input type="text" id="studentSearch" placeholder="Pesquisar aluno por nome ou CPF...">
+            <button id="searchStudentBtn"><i class="fas fa-search"></i></button>
+        </div>
+        
+        <!-- Botão para Adicionar Aluno -->
+        <button class="btn btn-primary" id="newStudentBtn">
+            <i class="fas fa-plus"></i> Novo Aluno
+        </button>
+    </div>
+    
+    <!-- Tabela de Alunos -->
+    <div class="table-responsive animate-fade-in">
+        <table>
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>CPF</th>
+                    <th>Telefone</th>
+                    <th>Débito</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody id="studentsTableBody">
+                <!-- Dados serão carregados via JavaScript -->
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<!-- Modal para Cadastro de Aluno -->
+<div class="modal" id="newStudentModal">
+    <div class="modal-content animate-modal-in">
+        <span class="close-modal">&times;</span>
+        <h2>Cadastrar Novo Aluno</h2>
+        
+        <form id="studentForm">
+            <div class="form-group">
+                <label for="studentName" class="required">Nome Completo</label>
+                <input type="text" class="form-control" id="studentName" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="studentCpf" class="required">CPF</label>
+                <input type="text" class="form-control" id="studentCpf" placeholder="000.000.000-00" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="studentPhone" class="required">Telefone</label>
+                <input type="tel" class="form-control" id="studentPhone" placeholder="(00) 00000-0000" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="studentEmail">E-mail</label>
+                <input type="email" class="form-control" id="studentEmail" placeholder="aluno@email.com">
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-save"></i> Salvar Aluno
+                </button>
+                <button type="button" class="btn btn-secondary close-modal-btn">
+                    Cancelar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Perfil do Aluno -->
+<div class="modal" id="studentProfileModal">
+    <div class="modal-content animate-modal-in">
+        <span class="close-modal">&times;</span>
+        <h2 id="studentProfileName">Perfil do Aluno</h2>
+        
+        <div class="student-info">
+            <div class="info-row">
+                <span class="info-label">CPF:</span>
+                <span class="info-value" id="studentProfileCpf"></span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Telefone:</span>
+                <span class="info-value" id="studentProfilePhone"></span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">E-mail:</span>
+                <span class="info-value" id="studentProfileEmail"></span>
+            </div>
+        </div>
+        
+        <h3 class="debts-title">Débitos Pendentes</h3>
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Produtos</th>
+                        <th>Valor</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="studentDebtsTable">
+                    <!-- Preenchido via JavaScript -->
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="debt-summary">
+            <div class="summary-item">
+                <span class="summary-label">Total Pendente:</span>
+                <span class="summary-value" id="studentTotalDebt">R$ 0,00</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Variáveis globais
+let students = JSON.parse(localStorage.getItem('dkStudents')) || [];
+let sales = JSON.parse(localStorage.getItem('dkSales')) || [];
+let currentEditId = null;
+
+// Inicialização quando o DOM estiver pronto
+document.addEventListener('DOMContentLoaded', function() {
+    setupStudentModal();
+    renderStudentsTable();
+    
+    // Configurar pesquisa
+    document.getElementById('searchStudentBtn').addEventListener('click', searchStudents);
+    document.getElementById('studentSearch').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') searchStudents();
+    });
+    
+    // Fechar modais
+    document.querySelectorAll('.close-modal, .close-modal-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.classList.remove('show');
+            });
+        });
+    });
+});
+
+// Configurar modal de aluno
+function setupStudentModal() {
+    // Abrir modal de aluno
+    document.getElementById('newStudentBtn').addEventListener('click', function() {
+        currentEditId = null;
+        document.getElementById('studentForm').reset();
+        document.getElementById('newStudentModal').classList.add('show');
+    });
+
+    // Máscara para CPF
+    document.getElementById('studentCpf').addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length > 3) value = value.replace(/^(\d{3})/, '$1.');
+        if (value.length > 7) value = value.replace(/^(\d{3})\.(\d{3})/, '$1.$2.');
+        if (value.length > 11) value = value.replace(/^(\d{3})\.(\d{3})\.(\d{3})/, '$1.$2.$3-');
+        e.target.value = value.substring(0, 14);
+    });
+
+    // Máscara para telefone
+    document.getElementById('studentPhone').addEventListener('input', function(e) {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length > 0) value = `(${value.substring(0, 2)}${value.substring(2)}`;
+        if (value.length > 3) value = `${value.substring(0, 3)} ${value.substring(3)}`;
+        if (value.length > 10) value = `${value.substring(0, 10)}-${value.substring(10)}`;
+        e.target.value = value.substring(0, 15);
+    });
+
+    // Salvar novo aluno
+    document.getElementById('studentForm').addEventListener('submit', saveStudent);
+}
+
+// Salvar aluno
+function saveStudent(e) {
+    e.preventDefault();
+    
+    const name = document.getElementById('studentName').value.trim();
+    const cpf = document.getElementById('studentCpf').value;
+    const phone = document.getElementById('studentPhone').value;
+    const email = document.getElementById('studentEmail').value.trim();
+    
+    if (!name || !cpf || !phone) {
+        alert('Preencha todos os campos obrigatórios');
+        return;
+    }
+    
+    // Validar CPF (formato básico)
+    if (!/^\d{3}\.\d{3}\.\d{3}-\d{2}$/.test(cpf)) {
+        alert('CPF inválido. Use o formato 000.000.000-00');
+        return;
+    }
+    
+    // Validar telefone (formato básico)
+    if (!/^\(\d{2}\) \d{4,5}-\d{4}$/.test(phone)) {
+        alert('Telefone inválido. Use o formato (00) 00000-0000');
+        return;
+    }
+    
+    // Verificar se CPF já existe
+    if (students.some(student => student.cpf === cpf && student.id !== currentEditId)) {
+        alert('Já existe um aluno cadastrado com este CPF');
+        return;
+    }
+    
+    // Criar/atualizar aluno
+    const studentData = {
+        id: currentEditId || (students.length > 0 ? Math.max(...students.map(s => s.id)) + 1 : 1),
+        name,
+        cpf,
+        phone,
+        email
+    };
+    
+    if (currentEditId) {
+        // Atualizar aluno existente
+        const index = students.findIndex(s => s.id === currentEditId);
+        if (index !== -1) {
+            students[index] = studentData;
+        }
+    } else {
+        // Adicionar novo aluno
+        students.push(studentData);
+    }
+    
+    // Salvar e atualizar
+    saveToLocalStorage();
+    renderStudentsTable();
+    
+    // Fechar modal e limpar formulário
+    document.getElementById('newStudentModal').classList.remove('show');
+    document.getElementById('studentForm').reset();
+    
+    alert('Aluno salvo com sucesso!');
+}
+
+// Renderizar tabela de alunos
+function renderStudentsTable() {
+    const tbody = document.getElementById('studentsTableBody');
+    tbody.innerHTML = '';
+    
+    students.forEach(student => {
+        const totalDebt = calculateStudentDebt(student.id);
+        
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>
+                <span class="student-name-hover" data-id="${student.id}">${student.name}</span>
+            </td>
+            <td>${student.cpf}</td>
+            <td>${student.phone}</td>
+            <td class="${totalDebt > 0 ? 'status-pending' : 'status-paid'}">
+                R$ ${totalDebt.toFixed(2)}
+            </td>
+            <td>
+                <button class="btn btn-primary btn-sm edit-student" data-id="${student.id}">
+                    <i class="fas fa-edit"></i> Editar
+                </button>
+                <button class="btn btn-danger btn-sm delete-student" data-id="${student.id}">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+    
+    // Configurar eventos dos botões
+    setupStudentButtons();
+}
+
+// Configurar eventos dos botões (editar/excluir)
+function setupStudentButtons() {
+    // Botão editar
+    document.querySelectorAll('.edit-student').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const studentId = parseInt(this.getAttribute('data-id'));
+            editStudent(studentId);
+        });
+    });
+    
+    // Botão excluir
+    document.querySelectorAll('.delete-student').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const studentId = parseInt(this.getAttribute('data-id'));
+            deleteStudent(studentId);
+        });
+    });
+    
+    // Hover nos nomes
+    document.querySelectorAll('.student-name-hover').forEach(name => {
+        name.addEventListener('click', function() {
+            const studentId = parseInt(this.getAttribute('data-id'));
+            showStudentProfile(studentId);
+        });
+    });
+}
+
+// Editar aluno
+function editStudent(studentId) {
+    const student = students.find(s => s.id === studentId);
+    if (!student) return;
+    
+    currentEditId = studentId;
+    
+    // Preencher formulário
+    document.getElementById('studentName').value = student.name;
+    document.getElementById('studentCpf').value = student.cpf;
+    document.getElementById('studentPhone').value = student.phone;
+    document.getElementById('studentEmail').value = student.email || '';
+    
+    // Abrir modal
+    document.getElementById('newStudentModal').classList.add('show');
+}
+
+// Excluir aluno
+function deleteStudent(studentId) {
+    if (confirm('Tem certeza que deseja excluir este aluno? Todas as vendas associadas também serão removidas.')) {
+        // Verificar se o aluno tem vendas
+        const hasSales = sales.some(sale => sale.studentId == studentId);
+        
+        if (hasSales) {
+            if (!confirm('Este aluno possui vendas associadas. Todas as vendas serão excluídas. Continuar?')) {
+                return;
+            }
+            // Remover vendas do aluno
+            sales = sales.filter(sale => sale.studentId != studentId);
+            localStorage.setItem('dkSales', JSON.stringify(sales));
+        }
+        
+        // Remover aluno
+        students = students.filter(student => student.id != studentId);
+        
+        // Atualizar interface
+        saveToLocalStorage();
+        renderStudentsTable();
+        
+        alert('Aluno excluído com sucesso!');
+    }
+}
+
+// Pesquisar alunos
+function searchStudents() {
+    const searchTerm = document.getElementById('studentSearch').value.toLowerCase();
+    const tbody = document.getElementById('studentsTableBody');
+    const rows = tbody.querySelectorAll('tr');
+    
+    rows.forEach(row => {
+        const name = row.cells[0].textContent.toLowerCase();
+        const cpf = row.cells[1].textContent.toLowerCase();
+        const showRow = name.includes(searchTerm) || cpf.includes(searchTerm);
+        row.style.display = showRow ? '' : 'none';
+    });
+}
+
+// Calcular débito de um aluno
+function calculateStudentDebt(studentId) {
+    return sales
+        .filter(sale => sale.studentId === studentId && sale.status === 'pending')
+        .reduce((total, sale) => total + sale.total, 0);
+}
+
+// Mostrar perfil do aluno
+function showStudentProfile(studentId) {
+    const student = students.find(s => s.id === studentId);
+    if (!student) return;
+    
+    // Preencher informações do aluno
+    document.getElementById('studentProfileName').textContent = student.name;
+    document.getElementById('studentProfileCpf').textContent = student.cpf;
+    document.getElementById('studentProfilePhone').textContent = student.phone;
+    document.getElementById('studentProfileEmail').textContent = student.email || 'Não informado';
+    
+    // Preencher débitos
+    const debtsTable = document.getElementById('studentDebtsTable');
+    debtsTable.innerHTML = '';
+    
+    const studentDebts = sales.filter(sale => sale.studentId === studentId && sale.status === 'pending');
+    let totalDebt = 0;
+    
+    studentDebts.forEach(debt => {
+        const productsText = debt.products.map(p => {
+            const product = products.find(prod => prod.id === p.productId);
+            return `${p.quantity}x ${product?.name || 'Produto removido'}`;
+        }).join(', ');
+        
+        totalDebt += debt.total;
+        
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${debt.date}</td>
+            <td>${productsText}</td>
+            <td>R$ ${debt.total.toFixed(2)}</td>
+            <td class="status-pending">Pendente</td>
+        `;
+        debtsTable.appendChild(row);
+    });
+    
+    // Atualizar total
+    document.getElementById('studentTotalDebt').textContent = `R$ ${totalDebt.toFixed(2)}`;
+    
+    // Mostrar modal
+    document.getElementById('studentProfileModal').classList.add('show');
+}
+
+// Salvar dados no localStorage
+function saveToLocalStorage() {
+    localStorage.setItem('dkStudents', JSON.stringify(students));
+}
+</script>
