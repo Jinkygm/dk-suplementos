@@ -1,0 +1,212 @@
+/* Estilos específicos para a página de Alunos */
+
+/* Section Header */
+#students .section-header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+#students .section-header h1 {
+    font-size: 2.2rem;
+    color: var(--primary);
+    margin-bottom: 0.5rem;
+    font-family: 'Montserrat', sans-serif;
+}
+
+#students .section-description {
+    color: var(--gray);
+    font-size: 1rem;
+    margin-bottom: 1rem;
+}
+
+/* Search Bar */
+#students .search-bar {
+    margin-bottom: 1.5rem;
+    max-width: 100%;
+}
+
+#students .search-bar input {
+    flex: 1;
+    padding: 0.6rem 1rem;
+    border: 1px solid var(--light-gray);
+    border-radius: 6px;
+    font-size: 0.95rem;
+    transition: border-color 0.3s;
+    width: 100%;
+    max-width: 500px;
+}
+
+#students .search-bar input:focus {
+    outline: none;
+    border-color: var(--secondary);
+    box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.2);
+}
+
+#students .search-bar button {
+    padding: 0.6rem 1.2rem;
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-left: 0.5rem;
+}
+
+#students .search-bar button:hover {
+    background-color: #333;
+}
+
+/* Table Styles */
+#students table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+    background-color: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+#students table th {
+    background-color: var(--primary);
+    color: var(--accent);
+    font-weight: 600;
+    padding: 1rem;
+    text-align: left;
+    font-family: 'Montserrat', sans-serif;
+}
+
+#students table td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--light-gray);
+    vertical-align: middle;
+}
+
+#students table tr:last-child td {
+    border-bottom: none;
+}
+
+#students table tr:hover {
+    background-color: rgba(231, 76, 60, 0.05);
+}
+
+/* Student Name Hover Effect */
+.student-name-hover {
+    color: var(--primary);
+    text-decoration: none;
+    position: relative;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.student-name-hover:hover {
+    color: var(--secondary);
+}
+
+.student-name-hover::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background-color: var(--secondary);
+    transition: width 0.3s;
+}
+
+.student-name-hover:hover::after {
+    width: 100%;
+}
+
+/* Button Actions */
+#students .btn-sm {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+    margin-right: 0.3rem;
+}
+
+/* Responsive Table */
+@media (max-width: 768px) {
+    #students table {
+        display: block;
+        overflow-x: auto;
+    }
+    
+    #students .search-bar {
+        flex-direction: column;
+    }
+    
+    #students .search-bar input {
+        margin-bottom: 0.5rem;
+    }
+    
+    #students .search-bar button {
+        margin-left: 0;
+        width: 100%;
+    }
+}
+
+/* Modal Styles */
+#newStudentModal .modal-content {
+    max-width: 500px;
+}
+
+#studentProfileModal .modal-content {
+    max-width: 700px;
+}
+
+/* Student Info in Modal */
+.student-info {
+    margin-bottom: 1.5rem;
+}
+
+.info-row {
+    display: flex;
+    margin-bottom: 0.8rem;
+}
+
+.info-label {
+    font-weight: 500;
+    color: var(--dark);
+    min-width: 80px;
+}
+
+.info-value {
+    color: var(--gray);
+}
+
+.debts-title {
+    font-size: 1.2rem;
+    color: var(--primary);
+    margin: 1.5rem 0 1rem;
+    font-family: 'Montserrat', sans-serif;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--light-gray);
+}
+
+.debt-summary {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--light-gray);
+}
+
+.summary-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.summary-label {
+    font-weight: 500;
+    color: var(--dark);
+}
+
+.summary-value {
+    font-weight: 700;
+    color: var(--secondary);
+    font-size: 1.2rem;
+}

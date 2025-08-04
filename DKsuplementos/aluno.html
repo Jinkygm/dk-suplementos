@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DK Suplementos - Controle de Alunos</title>
+    <link rel="stylesheet" href="public/style.css">
+    <link rel="stylesheet" href="aluno.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <span class="dk">DK</span><span class="suplementos">SUPLEMENTOS</span>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="index.html" class="nav-link" data-section="dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                <li><a href="aluno.html" class="nav-link active" data-section="students"><i class="fas fa-users"></i> Alunos</a></li>
+                <li><a href="#" class="nav-link" data-section="products"><i class="fas fa-shopping-basket"></i> Produtos</a></li>
+                <li><a href="#" class="nav-link" data-section="sales"><i class="fas fa-hand-holding-usd"></i> Vendas</a></li>
+                <li><a href="#" class="nav-link" data-section="profile"><i class="fas fa-user"></i> Perfil</a></li>
+                <li><a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Sair</a></li>
+            </ul>
+        </nav>
+    </header>
+    
+    <div class="container">
+        <!-- Students Section -->
+        <section class="content-section active" id="students">
+            <div class="section-header">
+                <h1 class="animate-slide-in">Alunos</h1>
+                <p class="section-description animate-slide-in">Gerenciamento de clientes</p>
+                <button class="btn btn-primary animate-slide-in" id="newStudentBtn"><i class="fas fa-plus"></i> Novo Aluno</button>
+            </div>
+            
+            <div class="search-bar animate-fade-in">
+                <input type="text" id="studentSearch" placeholder="Pesquisar aluno por nome ou CPF...">
+                <button id="searchStudentBtn"><i class="fas fa-search"></i></button>
+            </div>
+            
+            <div class="table-responsive animate-fade-in">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>CPF</th>
+                            <th>Telefone</th>
+                            <th>Débito</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="studentsTableBody">
+                        <!-- Os dados dos alunos serão preenchidos via JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+    
+    <!-- Modal Novo Aluno -->
+    <div class="modal" id="newStudentModal">
+        <div class="modal-content animate-modal-in">
+            <span class="close-modal">&times;</span>
+            <h2>Cadastrar Novo Aluno</h2>
+            
+            <form id="studentForm">
+                <div class="form-group">
+                    <label for="studentName" class="required">Nome Completo</label>
+                    <input type="text" class="form-control" id="studentName" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="studentCpf" class="required">CPF</label>
+                    <input type="text" class="form-control" id="studentCpf" placeholder="000.000.000-00" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="studentPhone" class="required">Telefone</label>
+                    <input type="tel" class="form-control" id="studentPhone" placeholder="(00) 00000-0000" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="studentEmail">E-mail</label>
+                    <input type="email" class="form-control" id="studentEmail" placeholder="aluno@email.com">
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-success"><i class="fas fa-save"></i> Salvar Aluno</button>
+                    <button type="button" class="btn btn-secondary close-modal-btn">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Modal Perfil do Aluno -->
+    <div class="modal" id="studentProfileModal">
+        <div class="modal-content animate-modal-in">
+            <span class="close-modal">&times;</span>
+            <h2 id="studentProfileName">Perfil do Aluno</h2>
+            
+            <div class="student-info">
+                <div class="info-row">
+                    <span class="info-label">CPF:</span>
+                    <span class="info-value" id="studentProfileCpf"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Telefone:</span>
+                    <span class="info-value" id="studentProfilePhone"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">E-mail:</span>
+                    <span class="info-value" id="studentProfileEmail"></span>
+                </div>
+            </div>
+            
+            <h3 class="debts-title">Débitos Pendentes</h3>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Produtos</th>
+                            <th>Valor</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="studentDebtsTable">
+                        <!-- Preenchido via JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="debt-summary">
+                <div class="summary-item">
+                    <span class="summary-label">Total Pendente:</span>
+                    <span class="summary-value" id="studentTotalDebt">R$ 0,00</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="aluno.js"></script>
+</body>
+</html>
